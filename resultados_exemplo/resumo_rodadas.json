@@ -1,0 +1,39 @@
+{
+  "n_folds": 7,
+  "ddof": 1,
+  "aggregation": "Média simples entre folds, sem ponderação pelo tamanho do teste; STD amostral (ddof=1). Cada n informa os folds com valor disponível para a métrica. Métricas OOF globais são calculadas separadamente.",
+  "positive_class": "M",
+  "average": "positive_class",
+  "metric_keys": [
+    "accuracy",
+    "precision_M",
+    "sensitivity_M",
+    "f1_M"
+  ],
+  "classes": [
+    "M",
+    "B"
+  ],
+  "metrics": {
+    "accuracy": {
+      "mean": 0.6651645632929996,
+      "std": 0.19338553808377568,
+      "n": 7
+    },
+    "precision_M": {
+      "mean": 0.5041509322418618,
+      "std": 0.28964153426895206,
+      "n": 7
+    },
+    "sensitivity_M": {
+      "mean": 0.6678728714487197,
+      "std": 0.3894120552531651,
+      "n": 7
+    },
+    "f1_M": {
+      "mean": 0.5470475218239969,
+      "std": 0.3143539870767973,
+      "n": 7
+    }
+  }
+}

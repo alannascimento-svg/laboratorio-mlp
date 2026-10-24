@@ -1,0 +1,4 @@
+# Python 3.11, 3.12 ou 3.13. Mesmas versões do motor original.
+numpy==2.3.5
+pandas==2.2.3
+scikit-learn==1.8.0

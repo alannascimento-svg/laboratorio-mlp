@@ -1,0 +1,90 @@
+{
+  "n": 569,
+  "correct": 375,
+  "classes": [
+    "M",
+    "B"
+  ],
+  "accuracy": 0.6590509666080844,
+  "sensitivity_M": 0.6556603773584906,
+  "specificity_B": 0.6610644257703081,
+  "precision_M": 0.5346153846153846,
+  "f1_M": 0.5889830508474576,
+  "balanced_accuracy": 0.6583624015643994,
+  "roc_auc_M": 0.7229797579409121,
+  "true_negative_B": 236,
+  "false_positive_B_as_M": 121,
+  "false_negative_M_as_B": 73,
+  "true_positive_M": 139,
+  "confusion_matrix_order": [
+    "B",
+    "M"
+  ],
+  "confusion_matrix": [
+    [
+      236,
+      121
+    ],
+    [
+      73,
+      139
+    ]
+  ],
+  "exact_ties": 0,
+  "test_coverage": "Cada registro testado exatamente uma vez",
+  "n_folds": 7,
+  "architecture": [
+    30,
+    16,
+    2
+  ],
+  "trainable_parameters": 530,
+  "class_counts": {
+    "M": 212,
+    "B": 357
+  },
+  "B": 357,
+  "M": 212,
+  "aggregation": "Métricas das N previsões OOF, não média simples de grupos desiguais.",
+  "external_clinical_validation": false,
+  "warning": "Experimento educacional. Não usar para diagnóstico, triagem ou decisões clínicas.",
+  "pca_enabled": false,
+  "architecture_scope": "modelo_final",
+  "fold_architectures": [
+    [
+      30,
+      16,
+      2
+    ],
+    [
+      30,
+      16,
+      2
+    ],
+    [
+      30,
+      16,
+      2
+    ],
+    [
+      30,
+      16,
+      2
+    ],
+    [
+      30,
+      16,
+      2
+    ],
+    [
+      30,
+      16,
+      2
+    ],
+    [
+      30,
+      16,
+      2
+    ]
+  ]
+}

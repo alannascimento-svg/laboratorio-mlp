@@ -1,0 +1,54 @@
+{
+  "folds": [
+    {
+      "fold": 1,
+      "selection_seconds": 0.0894797880000624,
+      "refit_seconds": 0.0869364699997277,
+      "total_seconds": 0.19832619799990425
+    },
+    {
+      "fold": 2,
+      "selection_seconds": 0.08142231700003322,
+      "refit_seconds": 0.08339501199998267,
+      "total_seconds": 0.18775522199985062
+    },
+    {
+      "fold": 3,
+      "selection_seconds": 0.08159563300023365,
+      "refit_seconds": 0.08122363999973459,
+      "total_seconds": 0.18457446399997934
+    },
+    {
+      "fold": 4,
+      "selection_seconds": 0.07741301999976713,
+      "refit_seconds": 0.07848697400004312,
+      "total_seconds": 0.17871173399998952
+    },
+    {
+      "fold": 5,
+      "selection_seconds": 0.07774869299964848,
+      "refit_seconds": 0.07843497000021671,
+      "total_seconds": 0.17969182900014857
+    },
+    {
+      "fold": 6,
+      "selection_seconds": 0.09204614400005084,
+      "refit_seconds": 0.07770909500004564,
+      "total_seconds": 0.1847814380003001
+    },
+    {
+      "fold": 7,
+      "selection_seconds": 0.04962544299996807,
+      "refit_seconds": 0.05320662200028892,
+      "total_seconds": 0.11721202199987601
+    }
+  ],
+  "final": {
+    "selection_seconds": 0.05548603900024318,
+    "refit_seconds": 0.06726011099999596,
+    "total_seconds": 0.13486869500002285
+  },
+  "clock": "monotonic",
+  "includes_persistence": true,
+  "total_seconds": 1.3836272680000548
+}

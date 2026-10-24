@@ -1,0 +1,26 @@
+# Ambientes, credenciais, caches e arquivos locais
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Treinamentos/importações pessoais nunca entram no repositório
+/resultados/
+/dados/importados/
+/resultados_exemplo/inferencias/
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+*.tmp
+*.zip

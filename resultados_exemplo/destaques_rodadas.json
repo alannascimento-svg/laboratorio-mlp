@@ -1,0 +1,35 @@
+{
+  "highlights": {
+    "accuracy": {
+      "value": 0.9361702127659575,
+      "ids": [
+        4
+      ]
+    },
+    "sensitivity_M": {
+      "value": 1.0,
+      "ids": [
+        4
+      ]
+    },
+    "specificity_B": {
+      "value": 1.0,
+      "ids": [
+        3
+      ]
+    },
+    "f1_M": {
+      "value": 0.9210526315789473,
+      "ids": [
+        4
+      ]
+    },
+    "false_negative_M_as_B": {
+      "value": 0.0,
+      "ids": [
+        4
+      ]
+    }
+  },
+  "warning": "Destaques descritivos. Amostras distintas por rodada. Não selecionar modelo final pelo teste."
+}

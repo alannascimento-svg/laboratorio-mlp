@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memória de cálculo · Laboratório MLP</title>
+<style>
+:root{color-scheme:light;--ink:#203b4b;--muted:#586b75;--line:#d4e0e5;--blue:#145778;--paper:#fff;--wash:#f3f7f8;--amber:#fff5de}
+*{box-sizing:border-box}body{margin:0;background:var(--wash);color:var(--ink);font:15px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:var(--blue);text-underline-offset:3px}button,input,select{font:inherit}button{background:var(--blue);color:#fff;border:1px solid var(--blue);border-radius:8px;padding:9px 18px;cursor:pointer;min-height:44px}button:disabled{opacity:.55;cursor:wait}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #e19b29;outline-offset:3px}
+.shell{max-width:1420px;margin:auto;padding:28px 32px 64px}header{margin-bottom:26px}.eyebrow{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700}h1{font-size:clamp(28px,4vw,40px);line-height:1.2;margin:12px 0}h2{font-size:22px;line-height:1.35;margin:0 0 12px}h3{font-size:16px;margin:22px 0 10px}p{margin:8px 0 14px}.intro{max-width:930px;color:var(--muted)}.back{display:inline-block;margin-bottom:14px;font-weight:600}
+.controls{display:flex;gap:15px;align-items:end;flex-wrap:wrap;background:white;border:1px solid var(--line);border-radius:12px;padding:20px;margin:20px 0}.control{display:flex;flex-direction:column;gap:5px;min-width:125px;flex:1}.control.wide{flex:2;min-width:240px}label{font-weight:650;font-size:13px}input,select{width:100%;min-height:43px;border:1px solid #abc0cb;border-radius:7px;padding:8px 10px;background:white;color:var(--ink)}input[disabled],select[disabled]{background:#edf1f3;color:#77858d}.context{font-size:13px;color:var(--muted);overflow-wrap:anywhere}.notice{border-left:4px solid #c28a27;background:var(--amber);padding:14px 18px;margin:16px 0;border-radius:0 8px 8px 0}.notice p{margin:0}.success{background:#edf8f2;border-color:#3d8564}.error{background:#fff0eb;border-color:#b54e34;color:#793827}
+.layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:24px;align-items:start}nav{position:sticky;top:16px;background:#fff;padding:17px;border:1px solid var(--line);border-radius:12px;max-height:calc(100vh - 32px);overflow:auto}nav strong{font-size:14px}nav ol{margin:10px 0 0;padding-left:21px}nav li{font-size:12px;padding:5px 0;line-height:1.45}nav a{text-decoration:none}nav a:hover{text-decoration:underline}main{min-width:0}.step,.legend,.closing{background:#fff;border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:20px;scroll-margin-top:18px}.explanation{color:#445d6b;max-width:950px}.formula-label{font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:750;letter-spacing:.06em;margin:20px 0 7px}.formulas{padding:14px 18px;border:1px solid #cbdee9;border-radius:8px;background:#f1f7fa;overflow-x:auto}.formula{font-family:ui-monospace,"Cascadia Code","DejaVu Sans Mono",monospace;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.9}.substitution{font-family:ui-monospace,"Cascadia Code","DejaVu Sans Mono",monospace;font-size:13px;overflow-wrap:anywhere;padding:7px 0}.table-wrap{width:100%;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:10px;max-height:580px}table{border-collapse:collapse;min-width:100%;font-size:12px;font-variant-numeric:tabular-nums}th,td{padding:9px 11px;text-align:left;border-bottom:1px solid #e1e8ec;vertical-align:top}th{background:#eaf1f5;position:sticky;top:0;z-index:1;white-space:nowrap;color:#365465;font-weight:700}td.numeric{text-align:right;white-space:nowrap;font-family:ui-monospace,"DejaVu Sans Mono",monospace}tr:nth-child(even) td{background:#fafcfd}tr.selected td{background:#edf6fc}td:first-child{min-width:95px}td details{min-width:190px;max-width:400px}summary{cursor:pointer;color:var(--blue);font-weight:600}td ol{max-height:230px;overflow:auto;padding-left:25px;line-height:1.9}.note{border-top:1px solid var(--line);margin-top:17px;padding-top:12px;font-size:13px;color:var(--muted)}.legend dl{display:grid;grid-template-columns:190px minmax(0,1fr);gap:10px 20px;font-size:13px}.legend dt{font-weight:700}.legend dd{margin:0}.small{font-size:12px;color:var(--muted)}.hidden,[hidden]{display:none!important}.tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.tools button{background:white;color:var(--blue)}footer{font-size:12px;color:var(--muted);padding:14px 0}.loading{padding:35px;text-align:center}.path{padding:12px 16px;border:1px solid #b9d6e5;background:#f1f8fc;border-radius:8px;margin:16px 0;font-weight:600;overflow-wrap:anywhere}
+@media(max-width:950px){.layout{grid-template-columns:1fr}nav{position:static;max-height:230px}nav ol{columns:2}.shell{padding:20px 18px 44px}.legend dl{grid-template-columns:140px minmax(0,1fr)}}
+@media(max-width:520px){.controls{padding:15px}.control.wide{min-width:100%}.control{min-width:110px}.step,.legend,.closing{padding:18px 14px}.legend dl{display:block}.legend dt{margin-top:16px}nav ol{columns:1}.formula{font-size:12px}.shell{padding:16px 10px 40px}.tools{align-items:stretch}.tools button{flex:1}}
+@media print{body{background:white}.shell{max-width:none;padding:0}.controls,nav,.tools,.back{display:none!important}.layout{display:block}.step,.legend,.closing{break-inside:auto;border-radius:0}.table-wrap{max-height:none;overflow:visible}table{font-size:9px}th{position:static}.formula{font-size:11px}.notice{border:1px solid #999}.legend dl{font-size:11px}footer{display:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header>
+<a href="/" class="back">← Voltar ao dashboard</a>
+<div class="eyebrow">Laboratório MLP · pesos e cálculos reais</div>
+<h1>Memória de cálculo</h1>
+<p class="intro">Siga uma entrada até o neurônio escolhido, todas as saídas e as derivadas. Cada etapa apresenta a fórmula e seu significado antes de substituir pelos valores. Os cálculos usam o modelo, o checkpoint e a amostra selecionados.</p>
+<p class="intro">Um modelo antigo permite conferir seu estado atual. A sequência que produziu os pesos só pode ser mostrada quando os lotes e o estado do otimizador foram registrados.</p>
+</header>
+<form id="controls" class="controls">
+  <div class="control wide"><label for="sample">Amostra</label><select id="sample" name="sample"><option value="0">Carregando…</option></select></div>
+  <div class="control"><label for="neuron">Neurônio oculto (H)</label><input id="neuron" type="number" min="1" step="1" value="1" required></div>
+  <div class="control wide"><label for="mode">Fonte dos cálculos</label><select id="mode"><option value="snapshot">Estado do modelo / checkpoint</option><option value="update" id="update-option" disabled>Atualização gravada (indisponível)</option></select></div>
+  <div class="control"><label for="step">Passo global gravado</label><input id="step" type="number" min="1" step="1" value="1" disabled></div>
+  <button id="load" type="submit">Carregar cálculo</button>
+</form>
+<p id="context" class="context"></p>
+<div id="status" role="status" aria-live="polite" class="notice"><p>Carregando os valores reais…</p></div>
+<p id="trace-note" class="small"></p>
+<div class="tools"><button type="button" id="print">Imprimir / salvar PDF</button><button type="button" id="download" disabled>Baixar memória em JSON</button><span class="small">A tela arredonda a apresentação; o JSON preserva os valores numéricos.</span></div>
+<p id="path" class="path" hidden></p>
+<div class="layout" id="layout" hidden>
+  <nav aria-label="Etapas da memória de cálculo"><strong>Ir para a etapa</strong><ol id="toc"></ol><p><a href="#legend">Legenda de símbolos</a></p></nav>
+  <main id="report"></main>
+</div>
+<footer>Inspeção local educacional. Esta página não executa treinamento nem altera os parâmetros. <span id="output-order">As saídas seguem a ordem salva no modelo.</span></footer>
+</div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const url=new URL(window.location.href),baseParams=new URLSearchParams();
+for(const key of ['run','model','checkpoint'])if(url.searchParams.has(key))baseParams.set(key,url.searchParams.get(key));
+let lastPayload=null,loading=false,currentMode=url.searchParams.has('step')?'update':'snapshot';
+$('neuron').value=String(Number(url.searchParams.get('neuron')||0)+1);
+$('step').value=url.searchParams.get('step')||'1';
+function el(tag,text,className){const node=document.createElement(tag);if(text!==undefined&&text!==null)node.textContent=String(text);if(className)node.className=className;return node;}
+function num(value){if(typeof value!=='number')return String(value??'—');if(!Number.isFinite(value))return 'Indisponível';if(value===0)return '0';const abs=Math.abs(value);if(abs<1e-7||abs>=1e10)return value.toExponential(10).replace('.',',');return value.toLocaleString('pt-BR',{maximumSignificantDigits:12});}
+function cell(value){const td=el('td');if(value&&typeof value==='object'&&Array.isArray(value.values)){const detail=el('details'),summary=el('summary',value.values.length+' parcelas');detail.append(summary,el('p',value.label,'small'));const list=el('ol');value.values.forEach(v=>list.append(el('li',num(v))));detail.append(list);td.append(detail);}else{td.textContent=typeof value==='number'?num(value):String(value??'—');if(typeof value==='number')td.className='numeric';}return td;}
+function tableView(data){const box=el('section');if(data.title)box.append(el('h3',data.title));const wrap=el('div',null,'table-wrap');wrap.tabIndex=0;wrap.setAttribute('role','region');wrap.setAttribute('aria-label',data.title||'Tabela de cálculo');const table=el('table'),head=el('thead'),tr=el('tr');for(const c of data.columns){const th=el('th',c.label);th.scope='col';tr.append(th);}head.append(tr);table.append(head);const body=el('tbody');for(const row of data.rows){const r=el('tr');if(Object.values(row).some(v=>typeof v==='string'&&v.includes('← selecionado')))r.className='selected';for(const c of data.columns)r.append(cell(row[c.key]));body.append(r);}table.append(body);wrap.append(table);box.append(wrap);return box;}
+function render(payload){
+  const r=payload.report,c=payload.context||{},updates=payload.updates||[];
+  if(!r||!Array.isArray(r.steps)||!Array.isArray(r.architecture))throw new Error('Resposta de cálculo incompleta.');
+  const classes=Array.isArray(r.classes)?r.classes:(r.architecture[2]===2?['M','B']:[]);
+  if(classes.length!==r.architecture[2])throw new Error('Ordem das classes ausente ou incompatível com a arquitetura.');
+  $('output-order').textContent='Ordem das saídas: ['+classes.join(', ')+']. Codificação one-hot: uma posição por classe, com 1 no alvo e 0 nas demais.'+(classes.length===2&&classes[0]==='M'&&classes[1]==='B'?' M=10; B=01.':'');
+  lastPayload=payload;currentMode=r.mode;
+  $('sample').replaceChildren();const supplied=Array.isArray(payload.samples)?payload.samples:[];
+  const samples=supplied.length?supplied:Array.from({length:r.sample_count||c.sample_count||1},(_,index)=>({index,label:'Amostra '+(index+1)}));
+  for(const s of samples){const index=Number(s.index);const option=el('option',(index+1)+' · '+(s.label||(s.id?'ID '+s.id:'Amostra')));option.value=String(index);$('sample').append(option);}
+  $('sample').value=String(r.sample);$('neuron').max=String(r.architecture[1]);$('neuron').value=String(r.neuron+1);
+  const count=Number(c.trace_count||0),available=count>0||updates.length>0;
+  $('update-option').disabled=!available;$('update-option').textContent=available?'Atualização real gravada':'Atualização gravada (indisponível)';
+  $('mode').value=currentMode;$('step').disabled=currentMode!=='update';if(count)$('step').max=String(c.last_step||count);
+  if(r.update)$('step').value=String(r.update.step);
+  $('trace-note').textContent=available?(count||updates.length)+' passos disponíveis nesta fonte. Ao trocar o passo, as amostras passam a ser as do lote daquele registro.':'Este modelo / fase não tem registros de atualização. Os snapshots continuam disponíveis; não contêm o histórico completo do otimizador.';
+  $('context').textContent=['Execução: '+(c.run||baseParams.get('run')||'—'),'Modelo: '+(c.model||baseParams.get('model')||'—'),'Checkpoint: '+(c.checkpoint||baseParams.get('checkpoint')||'concluído'),c.phase?'Fase: '+c.phase:'',c.epoch!==undefined&&c.epoch!==null?'Época do checkpoint: '+c.epoch:'',r.update?'Passo '+r.update.step+' · época '+r.update.epoch+' · lote '+r.update.batch:''].filter(Boolean).join(' · ');
+  const ok=r.verification?.ok;$('status').className='notice'+(ok?' success':' error');$('status').replaceChildren(el('p',r.notice));if(!ok)$('status').append(el('p','A conferência numérica encontrou uma divergência. Os valores gravados são exibidos para revisão; não trate a atualização como conferida.'));
+  $('path').hidden=false;$('path').textContent=(r.preprocessing?r.preprocessing.n_original_features+' medidas originais → Z-score → '+r.architecture[0]+' componentes PCA':r.architecture[0]+' entradas Z')+' → H'+(r.neuron+1)+' (ReLU) → soma de '+r.architecture[1]+' ocultos → Softmax ['+classes.join(', ')+'] → perda → derivadas'+(r.mode==='update'?' → atualização real do lote':'');
+  $('report').replaceChildren();$('toc').replaceChildren();
+  r.steps.forEach((step,index)=>{
+    const section=el('section',null,'step');section.id='step-'+(index+1);section.append(el('h2',step.title),el('p',step.explanation,'explanation'));
+    if(step.formulas?.length){section.append(el('div','Fórmula e significado','formula-label'));const formulas=el('div',null,'formulas');step.formulas.forEach(f=>formulas.append(el('div',f,'formula')));section.append(formulas);}
+    if(step.substitutions?.length||step.tables?.length)section.append(el('div','Substituindo pelos valores reais','formula-label'));
+    step.substitutions?.forEach(t=>section.append(el('div',t,'substitution')));step.tables?.forEach(t=>section.append(tableView(t)));if(step.note)section.append(el('p',step.note,'note'));$('report').append(section);
+    const li=el('li'),a=el('a',step.title.replace(/^\d+\.\s*/,''));a.href='#'+section.id;li.append(a);$('toc').append(li);
+  });
+  const legend=el('section',null,'legend');legend.id='legend';legend.append(el('h2','Legenda — o que cada símbolo significa'));const dl=el('dl');for(const [symbol,meaning] of r.legend||[]){dl.append(el('dt',symbol),el('dd',meaning));}legend.append(dl);$('report').append(legend);
+  const final=el('section',null,'closing');final.append(el('h2','Alcance da conferência'),el('p',r.history_note));
+  if(r.verification){final.append(el('p','Conferência numérica contra a implementação de backpropagation da rede: '+(ok?'consistente.':'há divergências.')));const labels={gradient_max_abs_error:'Maior diferença absoluta no gradiente',update_max_abs_error:'Maior diferença absoluta no parâmetro depois do passo',optimizer_state_max_abs_error:'Maior diferença absoluta no estado do otimizador',example_gradient_max_abs_error:'Maior diferença no gradiente do exemplo',objective_abs_error:'Diferença absoluta na perda',momentum_origin_abs_error:'Maior diferença absoluta na origem do momentum',projection_max_abs_error:'Maior diferença absoluta na projeção PCA'};for(const [key,value]of Object.entries(r.verification))if(key!=='ok')final.append(el('p',(labels[key]||key)+': '+num(value),'small'));}
+  $('report').append(final);$('layout').hidden=false;$('download').disabled=false;
+  const next=new URLSearchParams(baseParams);next.set('neuron',r.neuron);next.set('sample',r.sample);next.set('mode',r.mode);if(r.mode==='update')next.set('step',r.update.step);history.replaceState(null,'','/calculos?'+next);
+}
+async function load({sample,mode}={}){
+  if(loading)return;loading=true;$('load').disabled=true;$('status').className='notice';$('status').replaceChildren(el('p','Conferindo parâmetros, fórmulas e valores…'));
+  const params=new URLSearchParams(baseParams),chosenMode=mode||$('mode').value;params.set('mode',chosenMode);params.set('neuron',String(Number($('neuron').value)-1));params.set('sample',sample??$('sample').value??'0');if(chosenMode==='update')params.set('step',$('step').value);
+  try{const response=await fetch('/api/calculation?'+params,{cache:'no-store'});const payload=await response.json();if(!response.ok||payload.error)throw new Error(payload.error||'Não foi possível carregar o cálculo.');render(payload);}catch(error){$('status').className='notice error';$('status').replaceChildren(el('p',error.message||String(error)));$('layout').hidden=true;$('path').hidden=true;$('download').disabled=true;}finally{loading=false;$('load').disabled=false;}
+}
+$('controls').addEventListener('submit',event=>{event.preventDefault();load();});
+$('mode').addEventListener('change',()=>{$('step').disabled=$('mode').value!=='update';load({sample:'0'});});
+$('step').addEventListener('change',()=>{if($('mode').value==='update'&&$('step').checkValidity())load({sample:'0'});});
+$('sample').addEventListener('change',()=>load());
+$('print').addEventListener('click',()=>window.print());
+$('download').addEventListener('click',()=>{if(!lastPayload)return;const blob=new Blob([JSON.stringify(lastPayload,null,2)],{type:'application/json;charset=utf-8'}),link=el('a');const objectURL=URL.createObjectURL(blob);link.href=objectURL;link.download='memoria_calculo_H'+(lastPayload.report.neuron+1)+'_amostra'+(lastPayload.report.sample+1)+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(objectURL),1000);});
+load({sample:url.searchParams.get('sample')||'0',mode:currentMode});
+</script>
+</body>
+</html>

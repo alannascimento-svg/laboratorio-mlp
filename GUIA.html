@@ -1,0 +1,250 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guia MLP v2.4</title><style>body{margin:0;background:#eef4f7;color:#233d50;font:16px/1.7 system-ui,sans-serif}main{max-width:1040px;margin:35px auto;padding:42px 50px;background:white;border:1px solid #d8e4ec;border-radius:15px}h1{font-size:34px;line-height:1.25;color:#173d56}h2{font-size:23px;margin-top:36px;border-bottom:1px solid #dae4ec;padding-bottom:9px}h3{font-size:18px;color:#216e86}code{font:14px ui-monospace,monospace;background:#edf3f7;padding:2px 5px}pre{padding:20px;background:#f1f6f9;border:1px solid #dae4eb;border-radius:9px;overflow:auto;line-height:1.6}pre code{padding:0;background:none}table{border-collapse:collapse;width:100%;font-size:14px;margin:18px 0}th,td{border-bottom:1px solid #dce6ec;padding:12px;text-align:left}th{background:#edf5f8}a{color:#166e96;overflow-wrap:anywhere}strong{color:#183d56}blockquote{border-left:4px solid #b56442;background:#fff7ef;padding:12px 18px;margin:20px 0}li{margin-bottom:9px}.eyebrow{letter-spacing:2px;font-size:12px;color:#387487;text-transform:uppercase}.notice{background:#fff5e8;border:1px solid #efd7b8;padding:14px 18px;border-radius:9px;font-size:14px} @media(max-width:700px){main{margin:0;padding:25px 20px;border:0;border-radius:0}h1{font-size:28px}table{font-size:12px}td,th{padding:7px}}</style><main><div class="eyebrow">Laboratório MLP · edição pública</div><h1>Laboratório MLP — versão 2.4</h1>
+<section><h2>Tempo, PCA e novas bases — 2.4</h2><p>Os resultados agora mostram o tempo registrado. Históricos usam início e fim já salvos; tempos ausentes não são inventados. Nos próximos treinamentos, o tempo também é registrado por rodada e fase.</p><p>O PCA é opcional e começa desligado. Ao ativá-lo, escolha a variância preservada, inicialmente 95%. O sistema ajusta Z-score e PCA somente no treino de cada fase. A rede recebe K componentes e mantém H=teto((K+S)/2); K pode variar entre fases e rodadas. Previsões continuam recebendo as medidas originais. Na memória de cálculo, aparecem as fórmulas e parcelas da projeção antes da MLP.</p><p>O importador reconhece os preâmbulos de gênero/Abalone, proteína, Iris e Wine pelo conteúdo. O item 9 descreve classes e antecede os registros. Os alvos são primeira coluna em gênero/Wine, última em Iris/proteína. Em gênero foi escolhido prever M/F/I (macho, fêmea, infantil), mantendo Rings como entrada. Confira sempre as colunas no editor. Consultar ou importar não inicia treinamento.</p><p>PCA não transforma resultados históricos retroativamente; uma avaliação com PCA exige nova execução. Modelos anteriores continuam sem PCA e seus arquivos permanecem preservados.</p></section>
+<section><h2>Progresso por época — atualização 2.3.1</h2><p>Durante o treinamento, acompanhe a rodada, a fase (seleção interna ou retreino), as épocas concluídas e o tempo decorrido. Na seleção, o número máximo é um limite: a parada antecipada pode encerrar antes. A execução só termina quando o painel informa <strong>Concluído e salvo</strong>, após salvar o modelo final.</p><p>A memória continua guardando cada atualização dos pesos por lote. A gravação foi otimizada sem remover esses cálculos; os registros antigos continuam disponíveis. Reabrir a página permite acompanhar um treinamento que já esteja em andamento no servidor.</p></section>
+<section><h2>Múltiplas classes e base de proteínas</h2>
+<p>O importador reconhece o TXT <strong>Protein Localization Sites</strong>, separa seu texto introdutório e mostra ID, oito medidas e classe. Os 1.484 registros e os valores originais são preservados. As contagens vêm da tabela: EXC tem 35 casos, apesar de a introdução dizer 37.</p>
+<p>A regra geral é <strong>H = teto((entradas + saídas) / 2)</strong>. Para proteínas: 8 entradas → 9 ocultos ReLU → 10 saídas Softmax. Cada saída representa uma classe, em ordem gravada no modelo. A sigmoide ainda não foi aplicada. O caso M/B mantém a ordem [M,B] e os códigos 10/01.</p>
+<p>Outras classes usam K-fold estratificado por grupos. Registros com o mesmo ID ou medidas idênticas ficam no mesmo grupo, sem compartilhá-lo entre treino, validação e teste. A base exige ao menos 50 registros e cinco grupos por classe. ERL tem cinco exemplos: para esta base, use K-fold 5. O teste externo não escolhe pesos, normalização, momentum nem época.</p>
+<p>Precisão, recall e F1 usam média macro entre classes. As quatro métricas também aparecem como média ± STD amostral entre folds, separadas do resultado OOF global. A matriz de confusão, os pesos, as previsões e a memória de cálculo mostram todas as classes do modelo.</p>
+<p><strong>Compatibilidade:</strong> os exemplos e regras M/B nas seções abaixo descrevem o protocolo binário original. Modelos antigos mantêm suas classes e sua interpretação; nenhum histórico é convertido ou sobrescrito. Consulte também o README.md para instalação e verificações da edição pública.</p></section>
+<p>Rede neural educacional para classificação binária B/M. O projeto roda no computador, em CPU, com painel no navegador. O motor é implementado explicitamente com NumPy: uma camada oculta ReLU, duas saídas Softmax, backpropagation e atualização SGD com momentum. Adam continua disponível para comparar com a versão anterior.</p>
+<p><strong>Não usar para diagnóstico, triagem ou decisões clínicas.</strong> O experimento original recebe medidas numéricas WDBC, não imagens, e não foi validado clinicamente. Um escore Softmax não é uma probabilidade clínica calibrada.</p>
+<h2>1. Executar no computador</h2>
+<p>Extraia o ZIP do repositório inteiro em uma pasta nova. Instale Python 3.12 (também são aceitos 3.11 e 3.13). No Windows, execute <code>instalar_windows.bat</code> e depois <code>iniciar_windows.bat</code>. No Linux, use <code>bash instalar_linux.sh</code> e <code>bash iniciar_linux.sh</code>. No macOS, use <code>bash instalar_macos.sh</code> e <code>bash iniciar_macos.sh</code>.</p>
+<p>O endereço padrão é <a href="/">http://127.0.0.1:8501/</a>. Para outra porta, acrescente <code>--port 8502</code> ao inicializador. A primeira instalação requer internet; o painel e os dados incluídos funcionam localmente depois. A publicação do código não expõe seu servidor ou suas bases.</p>
+<h3>Demonstração pronta: explorar sem treinar</h3>
+<p>A execução <strong>Demonstração pública · adam · até 3 épocas</strong> foi gerada do zero com a base oficial WDBC da UCI, semente 42 e lote 256. É uma demonstração curta para estudar os cálculos, não um modelo otimizado. Contém checkpoints, pesos, resultados e atualizações reais. Os históricos pessoais anteriores não fazem parte desta distribuição.</p>
+<p>Abra <strong>Rede e pesos reais</strong>, selecione um neurônio e use <strong>Abrir memória de cálculo</strong>. Atalhos: <a href="/calculos?run=exemplo&amp;model=final&amp;checkpoint=trained&amp;neuron=0&amp;sample=0">equações com valores reais</a> e <a href="/calculos?run=exemplo&amp;model=final&amp;checkpoint=trained&amp;neuron=0&amp;sample=0&amp;step=1">primeira atualização gravada</a>.</p>
+<p>A página mostra fórmula, significado, parcelas numéricas e legenda, desde a padronização até as derivadas. O modo de estado do modelo calcula a passagem de uma amostra no checkpoint escolhido. O modo de atualização real lê o lote efetivamente gravado e confere gradientes, otimizador e pesos antes/depois. É possível imprimir/salvar PDF e baixar a memória em JSON.</p>
+<p>Para começar um treinamento novo, escolha primeiro um limite de 3 ou 5 épocas. O motor mantém o padrão completo de 800, que pode demorar. A gravação de cada lote aumenta o uso de disco. Consultar o exemplo não inicia treinamento; fechar o navegador não encerra um treino ativo. Ctrl+C no terminal encerra o servidor e preserva os artefatos gravados.</p>
+<h2>2. A arquitetura agora é uma fórmula</h2>
+<p>A regra definida para este projeto é:</p>
+<pre><code class="language-text">D = quantidade de características numéricas de entrada
+S = 2 saídas, na ordem [M, B]
+H = teto((D + S) / 2)
+Arquitetura = D → H → S
+Parâmetros treináveis = (D + 1) × H + (H + 1) × S
+</code></pre>
+<p>“Teto” significa arredondar para cima quando o resultado não é inteiro. É uma convenção explícita para completar a regra. Não é uma fórmula universal que garanta o melhor desempenho de uma MLP.</p>
+<table>
+<thead>
+<tr>
+  <th>Entradas D</th>
+  <th>Cálculo de H</th>
+  <th>Ocultos H</th>
+  <th>Rede</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>20</td>
+  <td>(20 + 2) / 2</td>
+  <td>11</td>
+  <td>20–11–2</td>
+</tr>
+<tr>
+  <td>30</td>
+  <td>(30 + 2) / 2</td>
+  <td>16</td>
+  <td>30–16–2</td>
+</tr>
+<tr>
+  <td>31</td>
+  <td>teto(33 / 2)</td>
+  <td>17</td>
+  <td>31–17–2</td>
+</tr>
+<tr>
+  <td>32</td>
+  <td>(32 + 2) / 2</td>
+  <td>17</td>
+  <td>32–17–2</td>
+</tr>
+<tr>
+  <td>40</td>
+  <td>(40 + 2) / 2</td>
+  <td>21</td>
+  <td>40–21–2</td>
+</tr>
+</tbody>
+</table>
+<p>Logo, 30–16–2 não está errado: é o resultado da fórmula nesta base. O erro da implementação anterior era fixar esses números. Agora o carregamento, as matrizes, o treinamento, a serialização, a previsão e a visualização respeitam D.</p>
+<p>Em 30–16–2 existem 480 pesos W1, 16 vieses b1, 32 pesos W2 e 2 vieses b2: <strong>530 parâmetros</strong>. O ID não é entrada e o diagnóstico é somente o alvo. A soma 30 + 2 usada para dimensionar H não transforma as saídas em entradas.</p>
+<h3>Base fornecida e CSVs com outras dimensões</h3>
+<p>O TXT original contém documentação e registros sem cabeçalho; esse formato continua exigindo 30 medidas, para não aceitar silenciosamente uma linha WDBC incompleta.</p>
+<p>Para outro número de características, use CSV com cabeçalho obrigatório:</p>
+<pre><code class="language-csv">id,diagnosis,medida_a,medida_b,medida_c
+amostra_001,M,1.2,3.4,5.6
+amostra_002,B,2.1,4.3,6.5
+</code></pre>
+<p>Este trecho ilustra o formato, não é uma base suficiente para treinar. O protocolo implementado exige no mínimo 50 registros e 20 exemplos de cada classe, de 1 a 256 medidas, nomes únicos, valores numéricos finitos e IDs únicos. <code>diagnosis</code> deve conter B ou M. Nomes reservados de ID/diagnóstico não podem ser usados como medidas. IDs e vetores de medidas repetidos são rejeitados para revisão antes da divisão.</p>
+<p>O sistema não determina se cada linha representa uma pessoa independente. A independência e a qualidade dos rótulos precisam ser verificadas pelo responsável pela base. As classes genéricas usam grupos de IDs ou medidas idênticas; isso não identifica automaticamente pessoas relacionadas ou outros vínculos ausentes na tabela.</p>
+<h2>3. Backpropagation não é concorrente de Adam</h2>
+<p><strong>MLP</strong> é a arquitetura. <strong>Backpropagation</strong> é o cálculo das derivadas do erro em relação aos pesos, pela regra da cadeia. <strong>SGD com momentum</strong> e <strong>Adam</strong> são métodos diferentes para usar essas derivadas e atualizar os parâmetros. Ambos podem utilizar backpropagation. A versão anterior já calculava essas derivadas; nesta versão o método de atualização padrão mudou para SGD com momentum.</p>
+<p>O fluxo de um lote é:</p>
+<pre><code class="language-text">1. Entrada padronizada Z
+2. Z1 = Z × W1 + b1
+3. H = ReLU(Z1)
+4. logits = H × W2 + b2
+5. scores = Softmax(logits)
+6. erro = entropia cruzada + regularização L2 dos pesos
+7. backpropagation: derivadas de W2, b2, W1 e b1
+8. atualização dos pesos pelo otimizador escolhido
+</code></pre>
+<p>A Softmax é calculada de forma numericamente estável. Para um lote com N amostras e alvos one-hot Y, a derivada nos logits é <code>(scores − Y) / N</code>. A retropropagação da camada oculta multiplica pela matriz W2 transposta e pela derivada ReLU. O WTA é usado na decisão final, não como função diferenciável de aprendizado.</p>
+<p>Ordem das saídas: <strong>[M, B]</strong>. Portanto M = <code>[1,0]</code> = código <strong>10</strong>; B = <code>[0,1]</code> = código <strong>01</strong>. Em empate exato, argmax escolhe M por convenção registrada, não por uma regra clínica. Ao importar os CSVs em planilhas, trate os códigos como texto para preservar o zero inicial de 01.</p>
+<h2>4. Momentum e o sinal do gradiente</h2>
+<p>No SGD implementado:</p>
+<pre><code class="language-text">v(t) = μ × v(t−1) − η × g(t)
+w(t) = w(t−1) + v(t)
+</code></pre>
+<p>η é a taxa de aprendizado, μ é o coeficiente de momentum, g é a derivada calculada pela backpropagation e v é a atualização acumulada. Os vieses seguem a mesma atualização.</p>
+<p><strong>Gradiente negativo não é erro.</strong> Sem momentum, para η = 0,01 e g = −0,4, a atualização é <code>−ηg = +0,004</code>. Aumentar esse peso pode reduzir a perda. Não buscamos tornar todas as derivadas positivas. O gradiente é um vetor de componentes; sua norma, um indicador de magnitude, é sempre não negativa.</p>
+<p>A frase “acelerar quando o gradiente ficar negativo para voltar a positivo” não foi implementada literalmente. Foi substituída, explicitamente, por uma <strong>heurística experimental de momentum limitado</strong>, baseada na perda e no alinhamento de gradientes completos de treino entre épocas. Não é RPROP, Nesterov ou um método com garantia de convergência.</p>
+<h3>Regra adaptativa exata</h3>
+<p>Ao final de cada época, o programa recalcula o gradiente da função objetivo no conjunto completo que está sendo usado para treinar naquela fase. A referência inicial é o gradiente antes da primeira época. O alinhamento é:</p>
+<pre><code class="language-text">c = produto_escalar(g_atual, g_anterior) / (norma(g_atual) × norma(g_anterior))
+</code></pre>
+<p>Quando alguma norma é zero, o alinhamento é definido como zero. Os sinais de componentes isoladas não comandam a adaptação.</p>
+<table>
+<thead>
+<tr>
+  <th>Condição ao final da época</th>
+  <th>Alteração para a próxima época</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Perda diminuiu além da tolerância e c &gt; 0</td>
+  <td>μ = mínimo(μ máximo, μ + incremento)</td>
+</tr>
+<tr>
+  <td>Perda aumentou além da tolerância OU c &lt; 0</td>
+  <td>μ = μ × fator de redução; zera a velocidade</td>
+</tr>
+<tr>
+  <td>Demais casos</td>
+  <td>Mantém μ</td>
+</tr>
+<tr>
+  <td>Modo momentum fixo</td>
+  <td>Mantém sempre μ inicial</td>
+</tr>
+</tbody>
+</table>
+<p>“Perda” nessa regra é a entropia cruzada de treino <strong>com</strong> a penalidade L2. A curva principal mostra a entropia cruzada sem L2; os dois valores estão registrados. O teste externo e os rótulos do teste não participam da adaptação. A validação interna escolhe a duração, separadamente.</p>
+<h3>Controles disponíveis no painel e CLI</h3>
+<table>
+<thead>
+<tr>
+  <th>Controle</th>
+  <th>Padrão</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Otimizador</td>
+  <td>SGD + momentum</td>
+</tr>
+<tr>
+  <td>Taxa de aprendizado η</td>
+  <td>0,001</td>
+</tr>
+<tr>
+  <td>Momentum inicial μ</td>
+  <td>0,10</td>
+</tr>
+<tr>
+  <td>Momentum máximo</td>
+  <td>0,90</td>
+</tr>
+<tr>
+  <td>Incremento por época estável</td>
+  <td>0,01</td>
+</tr>
+<tr>
+  <td>Fator de redução</td>
+  <td>0,50</td>
+</tr>
+<tr>
+  <td>Tolerância de variação da perda</td>
+  <td>0,00000001</td>
+</tr>
+<tr>
+  <td>Épocas máximas / paciência</td>
+  <td>800 / 60</td>
+</tr>
+<tr>
+  <td>Lote / L2</td>
+  <td>32 / 0,0001</td>
+</tr>
+<tr>
+  <td>Validação interna / melhora mínima</td>
+  <td>15% / 0,00001</td>
+</tr>
+<tr>
+  <td>Intervalo dos checkpoints numerados</td>
+  <td>25 épocas</td>
+</tr>
+</tbody>
+</table>
+<p>A primeira época usa μ = 0,10. A taxa η não muda automaticamente. No modo Adam, os controles de μ não têm efeito: Adam usa seus próprios momentos, com β1 = 0,9 e β2 = 0,999. O painel indica essa distinção.</p>
+<h2>5. Partições, Z-score e ausência de repetição no teste</h2>
+<p>O modo principal preserva a regra combinada: primeira rodada com aproximadamente 10% de teste, demais blocos entre 10% e 20% do total original, sorteados com restrição de viabilidade para não sobrar um grupo minúsculo. Os blocos são estratificados por classe e não se repetem no teste de uma mesma execução. Foram mantidos também os modos K-fold de 5 e de 10 grupos aproximadamente iguais.</p>
+<p>Na semente 42 da base fornecida, os testes têm 57, 62, 101, 94, 82, 81 e 92 registros. Cada caso é testado uma única vez. Um caso que foi teste em uma rodada pode ser treino em outra, mas cada rodada começa com rede, estado do otimizador e normalizador novos.</p>
+<p>A média e o desvio-padrão Z-score são calculados exclusivamente no treino pertinente. Característica constante recebe escala 1. Na seleção interna, o normalizador usa apenas o subtreino interno. Depois de escolhidas as épocas, o normalizador e os pesos são reiniciados e ajustados com todo o treino externo; somente então o teste externo é avaliado. A mesma lógica interna é usada para o modelo final treinado em toda a base.</p>
+<p>Os grupos de teste não são usados para escolher duração, momentum, escala ou pesos. O modelo final não herda pesos da rodada de maior acurácia e não tem um teste independente posterior ao ajuste completo.</p>
+<h2>6. Destaques e comparação honesta</h2>
+<p>O painel destaca maior acurácia, maior sensibilidade e maior F1 nas execuções comparáveis, incluindo todos os empates. Nas rodadas, evidencia os melhores valores de acurácia e sensibilidade. Os demais indicadores continuam visíveis; os arquivos JSON de destaques também incluem especificidade, F1 e menor quantidade de falsos negativos.</p>
+<p>A comparação entre execuções exige a mesma base por SHA-256, o mesmo modo e as mesmas partições internas e externas. Diferentes bases não entram no mesmo ranking. Trocar a semente normalmente muda as partições e cria outro grupo de comparação. Reexecutar um modelo com a mesma semente é teste de reprodutibilidade, não evidência independente adicional.</p>
+<p><strong>O ranking é exploratório.</strong> Escolher hiperparâmetros repetidamente pelo melhor resultado OOF pode superestimar desempenho. Uma avaliação final após essa escolha requer dados independentes ou validação aninhada que também contenha a busca de hiperparâmetros. Os pequenos blocos não são concursos diretamente equivalentes: por isso a acurácia global usa todas as previsões OOF, não a melhor rodada nem a média simples de porcentagens.</p>
+<h2>7. Visualizar a rede e seus pesos</h2>
+<p>Na aba <strong>Rede e pesos reais</strong>, selecione a execução, o modelo final ou uma rodada, e o checkpoint. A vista pode mostrar o modelo concluído, a inicialização ou as épocas periódicas da seleção interna e do retreino.</p>
+<p>Clique em H01, H02 etc. para destacar as conexões daquele neurônio. As linhas azuis são pesos positivos e as terracota são negativos; espessura representa magnitude. Isso não significa “benigno versus maligno”. Passar o mouse mostra o valor da conexão, e o painel apresenta os vieses e todos os parâmetros em tabela, CSV ou JSON. O arquivo NPZ preserva os valores de ponto flutuante; a tela arredonda a apresentação.</p>
+<p><code>W1[i,j]</code> conecta a entrada i ao neurônio oculto j. <code>W2[j,k]</code> conecta o oculto j à saída k. <code>b1</code> e <code>b2</code> são os vieses. Na rede de referência são 512 conexões e 18 vieses. Peso isolado não é medida causal de importância de uma característica, especialmente em uma composição não linear.</p>
+<p>A inspeção interativa está na aba <strong>Rede e pesos reais</strong> do painel. A demonstração incluída contém os parâmetros do novo exemplo público.</p>
+<h2>8. Tudo o que é guardado</h2>
+<p>Cada treinamento usa uma pasta exclusiva em <code>resultados/</code>. O código recusa pasta de saída não vazia. Não existe rotina que apague os resultados ruins ou mantenha apenas o melhor.</p>
+<pre><code class="language-text">resultados/rDATA_HORA_microsegundos/
+  configuracao.json / status.json / dados_utilizados.txt
+  rodadas.csv / metricas_oof.json / destaques_rodadas.json
+  previsoes_oof.csv / erros_oof.csv / particoes_auditoria.csv
+  historico_treinamento.csv
+  folds/fold_01/.../modelo.npz, pesos.csv, indices.json, normalizacao.csv
+  folds/fold_01/checkpoints/selecao_interna/...
+  folds/fold_01/checkpoints/retreino/...
+  checkpoints_final/selecao_interna/...
+  checkpoints_final/retreino/...
+  modelo_final.npz / pesos_final.csv / rede_final.json
+  modelo_final_selecao.csv / modelo_final_treinamento.csv
+  modelo_final_metadados.json / modelo_final_indices.json
+  normalizacao_final.csv / modelo_previsao.csv / comparacao.json
+  inferencias/pDATA_HORA_identificador/entrada.csv, previsoes.csv, metadados.json
+</code></pre>
+<p>Em cada fase, as métricas são acrescentadas a <code>historico.jsonl</code> a cada época e <code>ultimo.npz</code> é atualizado. Os arquivos <code>epoca_00000.npz</code>, <code>epoca_00025.npz</code> etc. preservam estados numerados. Também ficam salvos o estado selecionado e a época escolhida mesmo quando ela não é múltipla do intervalo. Para guardar todas as épocas separadamente, coloque intervalo 1; o uso de disco aumenta.</p>
+<p>O log contém taxa de aprendizado, μ usado e próximo, perda com/sem L2, norma e alinhamento do gradiente e fração de componentes negativas. Falhas tratadas preservam os artefatos existentes e marcam status de erro. Encerramento forçado ou falta de energia pode deixar a execução marcada como em andamento; os arquivos já escritos permanecem, mas isso não é garantia contra perda física do disco.</p>
+<p><strong>Checkpoints são para inspeção, não para retomada exata do treinamento.</strong> Estados de velocidade/Adam e posição do embaralhamento não são restaurados nesta versão. Uma nova execução começa do zero. O aplicativo não faz backup externo automático: exporte a execução ou copie a pasta para outro disco/armazenamento seguro.</p>
+<p>As previsões feitas pelo painel e pelo CLI são automaticamente arquivadas junto com a entrada e a identificação SHA-256 do modelo. O programa só confirma o salvamento quando as gravações terminam. Ao usar dados próprios sensíveis, proteja também a pasta de resultados, pois ela contém uma cópia da base utilizada.</p>
+<h2>9. Linha de comando</h2>
+<p>Dentro do ambiente virtual:</p>
+<pre><code class="language-bash">python treinar.py --dados dados/cancear.txt --otimizador sgd_momentum \
+  --momentum-inicial 0.10 --momentum-maximo 0.90 \
+  --incremento-momentum 0.01 --fator-reducao 0.50 \
+  --taxa 0.001 --epocas 800 --seed 42 --salvar-cada 25
+</code></pre>
+<p>Em Windows, use a linha toda sem as barras de continuação. Para μ fixo, acrescente <code>--momentum-fixo</code>. Para comparar o otimizador anterior, use <code>--otimizador adam</code>. <code>python treinar.py --help</code> mostra todos os controles.</p>
+<pre><code class="language-bash">python prever.py --modelo resultados/IDENTIFICADOR/modelo_final.npz --entrada minhas_medidas.csv
+python -m unittest discover -s tests -v
+</code></pre>
+<p>O CSV de inferência precisa das mesmas medidas nomeadas do modelo; permite ID opcional, não permite diagnóstico. Nomes são usados para reordenar as colunas. Não basta ter a mesma quantidade de números: o significado e o nome de cada característica devem corresponder ao treinamento.</p>
+<h2>10. Dados, privacidade e verificações</h2><p>A base incluída foi obtida diretamente da <a href="https://archive.ics.uci.edu/dataset/17/breast-cancer">UCI Machine Learning Repository</a>, DOI 10.24432/C5DW2B, licença <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Créditos: Wolberg, W., Mangasarian, O., Street, N., &amp; Street, W. (1993). O arquivo dados/ORIGEM.md documenta a preparação e o hash. A licença MIT do código não substitui a licença dos dados.</p><p>Novas execuções e importações ficam em pastas ignoradas pelo Git. Elas guardam dados utilizados, previsões e memórias; proteja-as ao trabalhar com arquivos próprios. Não há dependência de conta, chave de API ou Codex para usar o laboratório.</p><p>A suíte verifica gradientes por diferenças finitas, validação sem vazamento, persistência, PCA, interface e endpoints HTTP. Inclui a demonstração pública e confirma que consultar/exportar não altera seus artefatos. As instruções e o workflow estão no repositório. Checkpoints são para inspeção, sem retomada exata do estado do otimizador.</p><h2>Referências técnicas</h2>
+<p>O protocolo variável e a fórmula de H são regras deste projeto. A adaptação de momentum descrita acima é uma escolha experimental desta implementação, não uma regra extraída da documentação da base.</p>
+<ul>
+<li>Base fornecida: <code>dados/cancear.txt</code>, documentação Wisconsin Diagnostic Breast Cancer, Wolberg, Street e Mangasarian, novembro de 1995.</li>
+<li>MLP, backpropagation e otimizadores: <a href="https://scikit-learn.org/stable/modules/neural_networks_supervised.html">https://scikit-learn.org/stable/modules/neural_networks_supervised.html</a></li>
+<li>SGD e convenções de momentum: <a href="https://docs.pytorch.org/docs/2.14/generated/torch.optim.SGD.html">https://docs.pytorch.org/docs/2.14/generated/torch.optim.SGD.html</a></li>
+<li>Pré-processamento e vazamento de dados: <a href="https://scikit-learn.org/stable/common_pitfalls.html">https://scikit-learn.org/stable/common_pitfalls.html</a></li>
+<li>Viés na seleção e validação aninhada: <a href="https://scikit-learn.org/stable/auto_examples/model_selection/plot_nested_cross_validation_iris.html">https://scikit-learn.org/stable/auto_examples/model_selection/plot_nested_cross_validation_iris.html</a></li>
+
+</ul>
+</main></html>

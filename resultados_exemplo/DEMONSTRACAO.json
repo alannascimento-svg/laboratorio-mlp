@@ -1,0 +1,10 @@
+{
+  "description": "Demonstração pública curta, gerada separadamente dos históricos pessoais.",
+  "dataset": "Breast Cancer Wisconsin (Diagnostic), UCI, DOI 10.24432/C5DW2B",
+  "dataset_license": "CC BY 4.0",
+  "max_epochs": 3,
+  "batch_size": 256,
+  "optimizer": "adam",
+  "purpose": "Explorar a interface e conferir equações; não otimizar desempenho.",
+  "data_sha256": "ca3bb1f8f64a337aab96def923e2749ef10d5d66aa84d0a1fd4980d9c885658c"
+}

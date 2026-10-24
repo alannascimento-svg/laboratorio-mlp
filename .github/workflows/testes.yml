@@ -1,0 +1,69 @@
+name: Testes do Laboratório MLP
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    name: Python 3.12 · ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    env:
+      MLP_PYTHON: ${{ runner.os == 'Windows' && '.venv/Scripts/python.exe' || '.venv/bin/python' }}
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar dependências
+        if: runner.os == 'Linux'
+        run: bash instalar_linux.sh
+      - name: Instalar no macOS
+        if: runner.os == 'macOS'
+        run: bash instalar_macos.sh
+      - name: Instalar no Windows
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: call instalar_windows.bat
+      - name: Conferir dependências
+        shell: bash
+        run: '"$MLP_PYTHON" -m pip check'
+      - name: Testes científicos, persistência e HTTP
+        shell: bash
+        run: '"$MLP_PYTHON" -m unittest discover -s tests -v'
+      - name: Argumentos do inicializador no Linux
+        if: runner.os == 'Linux'
+        run: bash iniciar_linux.sh --help
+      - name: Argumentos do inicializador no macOS
+        if: runner.os == 'macOS'
+        run: bash iniciar_macos.sh --help
+      - name: Argumentos do inicializador no Windows
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: call iniciar_windows.bat --help
+      - name: Rede e interface
+        run: node tests/dashboard_check.js
+      - name: Editor de entradas
+        run: node tests/input_editor_check.js
+      - name: Progresso do treinamento
+        run: node tests/training_progress_check.js
+      - name: PCA no painel
+        run: node tests/pca_dashboard_check.js
