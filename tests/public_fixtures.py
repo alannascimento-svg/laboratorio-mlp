@@ -42,5 +42,5 @@ def legacy_example(root: Path) -> Path:
 
 def digest_files(folder: Path) -> dict[str, str]:
     import hashlib
-    return {str(path.relative_to(folder)): hashlib.sha256(path.read_bytes()).hexdigest()
+    return {path.relative_to(folder).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
             for path in folder.rglob('*') if path.is_file()}
